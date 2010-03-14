@@ -1,11 +1,13 @@
 import os
 
-def globalConfig(rootPath):
+APP_PATH = os.getcwd()
+
+def globalConfig():
     return {
         'serve.socket_port': 8080,
         'server.thread_pool': 10,
         'tools.sessions.on': False,
-        'tools.staticdir.root': os.path.abspath(rootPath)
+        'tools.staticdir.root': os.path.abspath(APP_PATH)
     }
 
 def appConfig():

@@ -6,8 +6,9 @@ Created on Jun 25, 2009
 from mako.template import Template
 from mako.lookup import TemplateLookup
 import os
+from cherryslice import APP_PATH
 
-lookupDirs = [os.path.join(os.getcwd(), 'views'),
+lookupDirs = [os.path.join(APP_PATH, 'views'),
 			  os.path.join(os.path.dirname(__file__), 'apps')]
 
 lookup = TemplateLookup(directories=lookupDirs,
