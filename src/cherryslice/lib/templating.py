@@ -12,7 +12,7 @@ lookupDirs = [os.path.join(APP_PATH, 'views'),
 			  os.path.join(os.path.dirname(__file__), 'apps')]
 
 lookup = TemplateLookup(directories=lookupDirs,
-					    module_directory=os.path.join(os.getcwd(), 'cache', 'template'))
+					    module_directory=os.path.join(APP_PATH, 'cache', 'template'))
 
 
 
