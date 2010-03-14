@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='CherrySlice',
-      version=0.1,
+      version='0.1',
       description='CherryPy Extention Framework',
       author='Nick Verbeck',
       author_email='nerdynick@gmail.com',
