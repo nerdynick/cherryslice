@@ -16,8 +16,6 @@ def getDistricts():
     
     if _districts is None:
         _districts = cache.loads(True)
-        if _districts is not None:
-            print "Got Districts from Cache"
         
     if _districts is None:
         dists = coloradoWaterService.service.GetWaterDistricts()
@@ -114,6 +112,11 @@ class WaterDistrict(object):
             raise Exception, "Cannot create Water District without a SOAP Response, or WDID & Div ID"
         
         self.stations = None
+        
+    def __getstate__(self):
+        dic = self.__dict__.copy()
+        dic['stations'] = None
+        return dic
             
     
     def getStations(self):
@@ -121,7 +124,9 @@ class WaterDistrict(object):
         if self.stations is None:
             self.stations = cache.loads(True)
             if self.stations is not None:
-                print "Got Stations from Cache"
+                #Set Correct Ref to self
+                for station in self.stations:
+                    station.waterDist = self
             
         if self.stations is None:
             self.stations = []
@@ -161,6 +166,12 @@ class Station(object):
         
         self.currentConditions = None
         
+    def __getstate__(self):
+        dic = self.__dict__.copy()
+        dic['currentConditions'] = None
+        dic['waterDist'] = None
+        return dic
+        
     def getLatLong(self):
         #Assuming UTM Zone 13 as it appears to not be documented and 13 covers most of Colorado
         return utmToLatLng(13, self.utm_x, self.utm_y)
@@ -169,8 +180,6 @@ class Station(object):
         cache = FileCache('ColoradoWater', 'StationCurrentConditions-'+str(self.waterDist.divID)+"-"+str(self.waterDist.wdID)+"-"+self.abbrev)
         if self.currentConditions is None:
             self.currentConditions = cache.loads(True)
-            if self.currentConditions is not None:
-                print "Got Conditions from Cache"
             
         if self.currentConditions is None:
             self.currentConditions = StationConditions(self.waterDist.divID, self.waterDist.wdID, self.abbrev)
