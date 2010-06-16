@@ -12,10 +12,12 @@ _districts = None
 
 def getDistricts():
     global _districts
-    cache = FileCache('ColoradoWether', 'Districts')
+    cache = FileCache('ColoradoWater', 'Districts')
     
     if _districts is None:
         _districts = cache.loads(True)
+        if _districts is not None:
+            print "Got Districts from Cache"
         
     if _districts is None:
         dists = coloradoWaterService.service.GetWaterDistricts()
@@ -29,16 +31,11 @@ def getDistricts():
     return _districts
 
 def getDistrict(div, wd):
-    print "Start"
     wd = int(wd)
     div = int(div)
-    print div, wd
     for district in getDistricts():
         if district.wdID == wd and district.divID == div:
-            print "Found"
             return district
-        else:
-            print district.wdID, district.divID
         
     return None
 
@@ -120,16 +117,22 @@ class WaterDistrict(object):
             
     
     def getStations(self):
-        cache = FileCache('ColoradoWether', 'Stations-'+str(self.divID)+"-"+str(self.wdID))
+        cache = FileCache('ColoradoWater', 'Stations-'+str(self.divID)+"-"+str(self.wdID))
         if self.stations is None:
             self.stations = cache.loads(True)
+            if self.stations is not None:
+                print "Got Stations from Cache"
             
         if self.stations is None:
             self.stations = []
             response = coloradoWaterService.service.GetSMSTransmittingStations(self.divID, self.wdID)
             self.stations = []
-            for station in response.Station:
-                self.stations.append(Station(response=station, waterDist=self))
+            try:
+                for station in response.Station:
+                    self.stations.append(Station(response=station, waterDist=self))
+            except AttributeError, e:
+                #This tends to be no stations for a district
+                pass
                 
             cache.dumps(self.stations, True)
             
@@ -163,8 +166,15 @@ class Station(object):
         return utmToLatLng(13, self.utm_x, self.utm_y)
     
     def getCurrentConditions(self):
+        cache = FileCache('ColoradoWater', 'StationCurrentConditions-'+str(self.waterDist.divID)+"-"+str(self.waterDist.wdID)+"-"+self.abbrev)
+        if self.currentConditions is None:
+            self.currentConditions = cache.loads(True)
+            if self.currentConditions is not None:
+                print "Got Conditions from Cache"
+            
         if self.currentConditions is None:
             self.currentConditions = StationConditions(self.waterDist.divID, self.waterDist.wdID, self.abbrev)
+            cache.dumps(self.currentConditions, True)
             
         return self.currentConditions
     
