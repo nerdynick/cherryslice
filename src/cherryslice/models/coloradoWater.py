@@ -15,7 +15,7 @@ def getDistricts():
     cache = FileCache('ColoradoWater', 'Districts')
     
     if _districts is None:
-        _districts = cache.loads(True)
+        _districts = cache.loads(True, hours=24)
         
     if _districts is None:
         dists = coloradoWaterService.service.GetWaterDistricts()
@@ -122,7 +122,7 @@ class WaterDistrict(object):
     def getStations(self):
         cache = FileCache('ColoradoWater', 'Stations-'+str(self.divID)+"-"+str(self.wdID))
         if self.stations is None:
-            self.stations = cache.loads(True)
+            self.stations = cache.loads(True, hours=24)
             if self.stations is not None:
                 #Set Correct Ref to self
                 for station in self.stations:
@@ -179,7 +179,7 @@ class Station(object):
     def getCurrentConditions(self):
         cache = FileCache('ColoradoWater', 'StationCurrentConditions-'+str(self.waterDist.divID)+"-"+str(self.waterDist.wdID)+"-"+self.abbrev)
         if self.currentConditions is None:
-            self.currentConditions = cache.loads(True)
+            self.currentConditions = cache.loads(True, hours=2)
             
         if self.currentConditions is None:
             self.currentConditions = StationConditions(self.waterDist.divID, self.waterDist.wdID, self.abbrev)

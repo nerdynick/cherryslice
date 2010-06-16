@@ -18,10 +18,10 @@ class FileCache(object):
             pass
         self.filePath = os.path.join(folder, str(name)+'.cache')
         
-    def loads(self, pickled=False):
+    def loads(self, pickled=False, hours=6):
         if os.path.exists(self.filePath):
             mtime = datetime.fromtimestamp(os.stat(self.filePath)[stat.ST_MTIME])
-            if datetime.now() - mtime >= timedelta(hours=2):
+            if datetime.now() - mtime >= timedelta(hours=hours):
                 return None
         else:
             return None
