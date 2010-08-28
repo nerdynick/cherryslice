@@ -18,7 +18,6 @@ class MemcachedCache(object):
     get = loads
         
     def dumps(self, key, value, exp=21600):
-        print cherrypy.request.config
         return self.mem.set(key, value, exp)
     set = dumps
     

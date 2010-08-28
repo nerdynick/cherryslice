@@ -5,17 +5,17 @@ Created on Jun 15, 2010
 '''
 import suds.client
 import math
-from cherryslice.lib.fileCaching import FileCache
+from cherryslice.lib.memCaching import getInstance
 
 coloradoWaterService = suds.client.Client('http://www.dwr.state.co.us/SMS_WebService/ColoradoWaterSMS.asmx?WSDL')
 _districts = None
 
 def getDistricts():
     global _districts
-    cache = FileCache('ColoradoWater', 'Districts')
+    cache = getInstance()
     
     if _districts is None:
-        _districts = cache.loads(True, hours=24)
+        _districts = cache.get('ColoradoWater_Districts')
         
     if _districts is None:
         dists = coloradoWaterService.service.GetWaterDistricts()
@@ -24,7 +24,7 @@ def getDistricts():
             districts.append(WaterDistrict(response=district))
         _districts = districts
         
-        cache.dumps(_districts, True)
+        cache.set('ColoradoWater_Districts', _districts, exp=86400)
         
     return _districts
 
@@ -120,9 +120,10 @@ class WaterDistrict(object):
             
     
     def getStations(self):
-        cache = FileCache('ColoradoWater', 'Stations-'+str(self.divID)+"-"+str(self.wdID))
+        cache = getInstance()
+        cache_key = 'ColoradoWater_Stations-'+str(self.divID)+"-"+str(self.wdID)
         if self.stations is None:
-            self.stations = cache.loads(True, hours=24)
+            self.stations = cache.get(cache_key)
             if self.stations is not None:
                 #Set Correct Ref to self
                 for station in self.stations:
@@ -139,7 +140,7 @@ class WaterDistrict(object):
                 #This tends to be no stations for a district
                 pass
                 
-            cache.dumps(self.stations, True)
+            cache.set(cache_key, self.stations, exp=86400)
             
         return self.stations
         
@@ -177,13 +178,14 @@ class Station(object):
         return utmToLatLng(13, self.utm_x, self.utm_y)
     
     def getCurrentConditions(self):
-        cache = FileCache('ColoradoWater', 'StationCurrentConditions-'+str(self.waterDist.divID)+"-"+str(self.waterDist.wdID)+"-"+self.abbrev)
+        cache = getInstance()
+        cache_key = 'ColoradoWater_StationCurrentConditions-'+str(self.waterDist.divID)+"-"+str(self.waterDist.wdID)+"-"+str(self.abbrev)
         if self.currentConditions is None:
-            self.currentConditions = cache.loads(True, hours=2)
+            self.currentConditions = cache.get(cache_key)
             
         if self.currentConditions is None:
             self.currentConditions = StationConditions(self.waterDist.divID, self.waterDist.wdID, self.abbrev)
-            cache.dumps(self.currentConditions, True)
+            cache.set(cache_key, self.currentConditions, exp=86400)
             
         return self.currentConditions
     
