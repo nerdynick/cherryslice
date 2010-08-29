@@ -1,0 +1,6 @@
+<%inherit file="/base.html" />
+<%!
+	title = False
+%>
+<!-- No real content on the home page. May wish to put some landing page into -->
+<!-- TODO: Landing page info of some kind -->

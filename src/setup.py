@@ -9,7 +9,12 @@ setup(name='CherrySlice',
       author_email='nerdynick@gmail.com',
       packages=['cherryslice',
                 'cherryslice.lib',
+                'cherryslice.lib.database',
                 'cherryslice.apps',
+                'cherryslice.apps.blog',
+                'cherryslice.apps.blog.models',
+                'cherryslice.apps.blog.controllers',
                 'cherryslice.helpers',
                 'cherryslice.models'],
+      package_data={'cherryslice': ['apps/blog/views/index.html']}
      )
