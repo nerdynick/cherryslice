@@ -1,34 +1,39 @@
 import os
+import sys
+import cherrypy
+from cherryslice import config
 
 APP_PATH = os.getcwd()
 
-def globalConfig():
-    return {
-        'serve.socket_port': 8080,
-        'server.thread_pool': 10,
-        'tools.sessions.on': False,
-        'tools.staticdir.root': os.path.abspath(APP_PATH)
-    }
-
-def appConfig():
-    static = {
-        'tools.staticdir.on': True,
-        'tools.etags.on': True,
-        'tools.etags.autotags': True,
-        'tools.expires.on': True,
-        'tools.expires.secs': 21600,
-        'tools.expires.force': True,
-        'tools.gzip.on': True
-    }
-    config = {
-        '/css': dict(static),
-        '/js': dict(static),
-        '/images': dict(static),
-        '/extra': dict(static)
-    }
-    config['/css'].update({'tools.staticdir.dir': 'static/css'})
-    config['/js'].update({'tools.staticdir.dir': 'static/js'})
-    config['/images'].update({'tools.staticdir.dir': 'static/images'})
-    config['/extra'].update({'tools.staticdir.dir': 'static/extra'})
+def setup(loc=None):
+    global APP_PATH
     
-    return config
+    if loc is not None:
+        #Setup App Path for CherrySlice Application Overrides
+        APP_PATH = os.path.dirname(loc)
+        
+        #Setup Import Path lookup. This is for applications running in 
+        #mod_wsgi that aren't installed into the standard install locs
+        sys.path.append(os.path.dirname(loc))
+    
+    #Setup CherryPy Global Configurations
+    cherrypy.config.update(config.globalConfig())
+    
+def newApp(rootController, rootLoc='/', configFile='app.conf'):
+    app = cherrypy.tree.mount(rootController, rootLoc, config=config.commonAppConfig())
+    
+    appFile = os.path.join(APP_PATH, configFile)
+    if os.path.exists(appFile):
+        app.merge(appFile)
+        
+    return app
+
+def launchStandalone(app, port=8080):
+    cherrypy.config.update({'server.socket_port':port})
+    cherrypy.engine.start()
+    cherrypy.engine.block()
+    
+def launchWSGI(app):
+    cherrypy.log._set_screen_handler(cherrypy.log.access_log, False)
+    cherrypy.log._set_screen_handler(cherrypy.log.error_log, False)
+    return app
