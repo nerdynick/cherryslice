@@ -11,7 +11,7 @@ def getInstance():
 
 class MemcachedCache(object):
     def __init__(self):
-        self.mem = memcache.Client(str(cherrypy.request.app.config["memcached"]['servers']).split(','))
+        self.mem = memcache.Client(str(cherrypy.tree.apps[''].config["memcached"]['servers']).split(','))
         
     def loads(self, key):
         return self.mem.get(key)
