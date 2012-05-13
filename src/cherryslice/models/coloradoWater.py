@@ -6,6 +6,7 @@ Created on Jun 15, 2010
 import suds.client
 import math
 from cherryslice.lib.memCaching import getInstance
+import dateutil.parser
 
 coloradoWaterService = suds.client.Client('http://www.dwr.state.co.us/SMS_WebService/ColoradoWaterSMS.asmx?WSDL')
 _districts = None
@@ -180,8 +181,8 @@ class Station(object):
     def getCurrentConditions(self):
         cache = getInstance()
         cache_key = 'ColoradoWater_StationCurrentConditions-'+str(self.waterDist.divID)+"-"+str(self.waterDist.wdID)+"-"+str(self.abbrev)
-        if self.currentConditions is None:
-            self.currentConditions = cache.get(cache_key)
+#        if self.currentConditions is None:
+#            self.currentConditions = cache.get(cache_key)
             
         if self.currentConditions is None:
             self.currentConditions = StationConditions(self.waterDist.divID, self.waterDist.wdID, self.abbrev)
@@ -198,6 +199,8 @@ class StationConditions(object):
         #Gage Height in FT
         self.gageHeight = 0
         
+        self.date = None
+        
         response = coloradoWaterService.service.GetSMSCurrentConditions(div, wd, abbrev)
         try:
             for condition in response.CurrentCondition:
@@ -209,8 +212,14 @@ class StationConditions(object):
                     self.gageHeight = float(condition.amount)
                 elif condition.variable == "GAGE_HT1" and self.gageHeight == 0:
                     self.gageHeight = float(condition.amount)
+                elif condition.variable == "GAGE_HT2" and self.gageHeight == 0:
+                    self.gageHeight = float(condition.amount)
                 elif condition.variable == "AIRTEMP":
                     self.airTemp = float(condition.amount)
+                    
+                if self.date is None and condition.transDateTime is not None:
+                    self.date = dateutil.parser.parse(condition.transDateTime)
+                    
         except:
             pass
     
