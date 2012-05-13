@@ -4,7 +4,8 @@ Created on Mar 28, 2012
 @author: nerdynick
 '''
 import os
-from cherryslice import APP_PATH
+
+APP_PATH = os.getcwd()
 
 def globalConfig():
     return {

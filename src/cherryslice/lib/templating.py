@@ -5,7 +5,7 @@ Created on Jun 25, 2009
 '''
 from mako.lookup import TemplateLookup
 import os
-from cherryslice import APP_PATH
+from cherryslice.config import APP_PATH
 
 lookupDirs = [os.path.join(APP_PATH, 'views'),
 			  os.path.join(os.path.dirname(__file__), '..', 'apps')]
@@ -15,7 +15,9 @@ lookup = TemplateLookup(directories=lookupDirs,
 
 
 def getTemplate(template):
-	#Special loading for each app
+	"""
+	Special Loader to allow for overriding of CherrySlice application views
+	"""
 	if template[:3] == 'app':
 		templates = template.split('/', 1)
 		app = templates[0][4:]

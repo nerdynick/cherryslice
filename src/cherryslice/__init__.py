@@ -2,8 +2,7 @@ import os
 import sys
 import cherrypy
 from cherryslice import config
-
-APP_PATH = os.getcwd()
+from cherryslice.config import APP_PATH
 
 def setup(loc=None):
     global APP_PATH

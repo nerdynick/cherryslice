@@ -4,14 +4,14 @@ Created on Jun 15, 2010
 @author: nick
 '''
 import os
-import cherryslice
+from cherryslice.config import APP_PATH
 import stat
 from datetime import datetime, timedelta
 import pickle
 
 class FileCache(object):
     def __init__(self, group, name):
-        folder = os.path.join(cherryslice.APP_PATH, 'cache', group)
+        folder = os.path.join(APP_PATH, 'cache', group)
         try:
             os.makedirs(folder, 0777)
         except:
