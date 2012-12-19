@@ -4,8 +4,12 @@ Created on Mar 28, 2012
 @author: nerdynick
 '''
 import os
+import cherrypy
 
 APP_PATH = os.getcwd()
+
+def getConfigs():
+    return cherrypy.tree.apps[''].config
 
 def globalConfig():
     return {
@@ -35,5 +39,6 @@ def commonAppConfig():
     config['/js'].update({'tools.staticdir.dir': 'static/js'})
     config['/images'].update({'tools.staticdir.dir': 'static/images'})
     config['/extra'].update({'tools.staticdir.dir': 'static/extra'})
+    config['/swf'].update({'tools.staticdir.dir': 'static/swf'})
     
     return config
